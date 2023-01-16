@@ -1,42 +1,31 @@
 const express = require("express");
-
-const { connection } = require("./db");
-
-const { userRoutes } = require("./Routes/User.routes");
-
-const { postRoutes } = require("./Routes/Post.routes");
-
-const { authenticate } = require("./middleware/authentication.middleware");
-
-require("dotenv").config();
-
-const app = express();
-
-
-
-app.use(express.json());
-
+require('dotenv').config();
+const cors = require("cors")
+const { connection } = require("./config/db");
+const { userRouter } = require("./routes/User.route.js");
+const { noteRouter } = require("./routes/Note.route.js");
+const { authenticate } = require("./middlewares/authenticate.middleware.js");
+const app = express()
+app.use(cors({
+    origin: "*"
+}))
+app.use(express.json())
 app.get("/", (req, res) => {
-  res.send("Welcome");
-});
-
-app.use("/users", userRoutes);
-
-// app.use(authenticate);
-
-app.use("/posts", postRoutes);
-
+    res.send("Home page")
+})
+app.use("/users", userRouter);
+app.use(authenticate);
+app.use("/notes", noteRouter);
 
 app.listen(process.env.port, async () => {
-  try {
+    try {
+        await connection
+        console.log("Connection has been established")
+    } catch (err) {
+        console.log("Trouble connecting to database");
+        console.log(err)
+    }
+    console.log(`http://localhost:${process.env.port}`)
+})
 
-    await connection;
-    console.log("connect to db");
-  } catch (err) {
-    console.log("Error while connecting to DB");
-
-    console.log(err);
-
-  }
-  console.log(`Server running at ${process.env.port}`);
-});
+//63c363a04aa13d5c50846535
